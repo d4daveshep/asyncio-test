@@ -48,7 +48,6 @@ async def sender() -> None:
         target_temp = random.randrange(10, 30)
         string_to_send = json.dumps({"target-temp": target_temp})
 
-
         print(f"sending = {string_to_send}")
         await push.send_multipart([string_to_send.encode("utf-8")])
         await asyncio.sleep(20)

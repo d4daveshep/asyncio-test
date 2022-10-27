@@ -29,7 +29,7 @@ async def zmq_receiver(ctx: Context, url: str) -> None:
                 target_temp = dict_received["target-temp"]
                 await write_serial_string(writer, target_temp)
             except KeyError as err_info:
-                print(f"{err_info} not received" )
+                print(f"{err_info} not received")
 
 
 async def read_serial_line(reader):

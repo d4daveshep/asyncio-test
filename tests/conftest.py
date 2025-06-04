@@ -44,12 +44,6 @@ def mock_serial_connection():
         AsyncMock()
     )  # drain() is async and waits for write buffer to empty
 
-    # Sample JSON responses that might come back after writing commands
-    # json_responses = [{"status": "ok", "command_id": f"cmd_{i}"} for i in range(10)]
-
-    # Convert responses to bytes with newlines
-    # response_bytes = [(json.dumps(resp) + "\r\n").encode() for resp in json_responses]
-
     # Configure readline to return different responses
     mock_reader.readline.side_effect = response_generator()
 

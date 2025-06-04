@@ -1,6 +1,34 @@
-import pytest
+import itertools
 import json
-from unittest.mock import patch, AsyncMock, MagicMock
+import math
+from typing import Generator
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+
+
+def sine_wave_value(interval: int) -> float:
+    """
+    Return floats between 19.0 and 21.0 using a sine function.
+    Full cycle is split into 20 intervals.
+    """
+    intervals: int = 20
+    while True:
+        angle: float = (2 * math.pi * (interval % intervals)) / intervals
+        sine_value: float = math.sin(angle)
+        scaled_value: float = 20.0 + sine_value
+        return scaled_value
+
+
+def response_generator() -> Generator:
+    """
+    Generator that creates responses with sine wave values
+    """
+    counter: int = 0
+    while True:
+        response = {"interval": counter, "value": sine_wave_value(counter)}
+        counter += 1
+        yield (json.dumps(response) + "\r\n").encode()
 
 
 @pytest.fixture
@@ -17,17 +45,13 @@ def mock_serial_connection():
     )  # drain() is async and waits for write buffer to empty
 
     # Sample JSON responses that might come back after writing commands
-    json_responses = [
-        {"status": "ok", "command_id": "cmd_001"},
-        {"status": "ok", "command_id": "cmd_002"},
-        {"status": "error", "message": "invalid command", "command_id": "cmd_003"},
-    ]
+    # json_responses = [{"status": "ok", "command_id": f"cmd_{i}"} for i in range(10)]
 
     # Convert responses to bytes with newlines
-    response_bytes = [(json.dumps(resp) + "\r\n").encode() for resp in json_responses]
+    # response_bytes = [(json.dumps(resp) + "\r\n").encode() for resp in json_responses]
 
     # Configure readline to return different responses
-    mock_reader.readline.side_effect = response_bytes
+    mock_reader.readline.side_effect = response_generator()
 
     # Patch the serial connection
     patcher = patch("serial_asyncio.open_serial_connection", new=AsyncMock())
@@ -38,7 +62,7 @@ def mock_serial_connection():
         "reader": mock_reader,
         "writer": mock_writer,
         "open_connection": mock_open,
-        "expected_responses": json_responses,
+        # "expected_responses": json_responses,
     }
 
     patcher.stop()

@@ -1,42 +1,37 @@
-import pytest
+from myasync.arduino_serial_loop import main
+from conftest import sine_wave_value
 import asyncio
 import serial_asyncio
-from asyncio import Queue
-
-from myasync.arduino_serial_loop import (
-    read_from_arduino,
-    write_to_database,
-    handle_arduino_commands,
-)
+import pytest
 
 
 @pytest.mark.asyncio
 async def test_main(mock_serial_connection):
-    # Create queues for inter-task communication
-    db_queue = Queue()
-    command_queue = Queue()
+    await main()
+    pass
 
+
+@pytest.mark.asyncio
+async def test_mock_serial_generator_function(mock_serial_connection):
     # Open serial connection to Arduino
     reader, writer = await serial_asyncio.open_serial_connection(
         url="/dev/ttyUSB0",  # Adjust for your Arduino port
         baudrate=9600,
     )
 
-    # Create and run all tasks concurrently
-    tasks = [
-        asyncio.create_task(read_from_arduino(reader, db_queue)),
-        asyncio.create_task(write_to_database(db_queue)),
-        asyncio.create_task(handle_arduino_commands(writer, command_queue)),
-    ]
+    while True:
+        try:
+            data = await reader.readline()
+            decoded_data = data.decode("utf-8").strip()
+            if decoded_data:
+                print(f"Received data: {decoded_data}")
+                await asyncio.sleep(0.5)
+        except Exception as e:
+            print(f"Error reading from Arduino: {e}")
+            await asyncio.sleep(0.5)
 
-    try:
-        # Example: Add a command to the queue
-        await command_queue.put("LED_ON")
 
-        # Run all tasks concurrently
-        await asyncio.gather(*tasks)
-    except KeyboardInterrupt:
-        print("Shutting down...")
-        for task in tasks:
-            task.cancel()
-        writer.close()
+def test_sine_wave():
+    for interval in range(20):
+        value = sine_wave_value(interval)
+        print(f"i:{interval}, value={value:.2f}")

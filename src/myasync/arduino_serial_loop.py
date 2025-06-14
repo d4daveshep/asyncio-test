@@ -58,8 +58,8 @@ async def main() -> None:
     reader: StreamReader
     writer: StreamWriter
     reader, writer = await serial_asyncio.open_serial_connection(
-        url="/dev/ttyUSB0",  # Adjust for your Arduino port
-        baudrate=9600,
+        url="/dev/ttyACM0",  # Adjust for your Arduino port
+        baudrate=115200,
     )
 
     # Create and run all tasks concurrently
@@ -86,4 +86,3 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-

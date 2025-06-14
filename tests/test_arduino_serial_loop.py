@@ -15,8 +15,8 @@ async def test_main(mock_serial_connection):
 async def test_mock_serial_generator_function(mock_serial_connection):
     # Open serial connection to Arduino
     reader, writer = await serial_asyncio.open_serial_connection(
-        url="/dev/ttyUSB0",  # Adjust for your Arduino port
-        baudrate=9600,
+        url="/dev/ttyACM0",  # Adjust for your Arduino port
+        baudrate=115200,
     )
 
     while True:

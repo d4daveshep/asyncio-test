@@ -5,7 +5,7 @@ import serial_asyncio
 
 
 # Example functions that write to serial port
-async def send_command_to_device(command, port="/dev/ttyUSB0", baudrate=115200):
+async def send_command_to_device(command, port="/dev/ttyACM0", baudrate=115200):
     """Send a single command to the device and return the response."""
     reader, writer = await serial_asyncio.open_serial_connection(
         url=port, baudrate=baudrate
@@ -26,7 +26,7 @@ async def send_command_to_device(command, port="/dev/ttyUSB0", baudrate=115200):
         writer.close()
 
 
-async def send_multiple_commands(commands, port="/dev/ttyUSB0", baudrate=115200):
+async def send_multiple_commands(commands, port="/dev/ttyACM0", baudrate=115200):
     """Send multiple commands and collect all responses."""
     reader, writer = await serial_asyncio.open_serial_connection(
         url=port, baudrate=baudrate
@@ -53,7 +53,7 @@ async def send_multiple_commands(commands, port="/dev/ttyUSB0", baudrate=115200)
         writer.close()
 
 
-async def configure_device_settings(settings, port="/dev/ttyUSB0", baudrate=115200):
+async def configure_device_settings(settings, port="/dev/ttyACM0", baudrate=115200):
     """Send configuration settings to device and verify they were applied."""
     reader, writer = await serial_asyncio.open_serial_connection(
         url=port, baudrate=baudrate
@@ -90,7 +90,7 @@ async def test_send_single_command(mock_serial_connection):
 
     # Verify the connection was opened
     mock_serial_connection["open_connection"].assert_called_once_with(
-        url="/dev/ttyUSB0", baudrate=115200
+        url="/dev/ttyACM0", baudrate=115200
     )
 
     # Verify the command was written correctly
@@ -166,7 +166,7 @@ async def test_write_with_custom_port_and_baudrate(mock_serial_connection):
     """Test that custom port and baudrate parameters are passed correctly."""
     command = {"action": "test"}
     custom_port = "/dev/ttyACM0"
-    custom_baudrate = 9600
+    custom_baudrate = 115200
 
     await send_command_to_device(command, port=custom_port, baudrate=custom_baudrate)
 
@@ -226,7 +226,7 @@ async def test_writer_drain_called_properly(mock_serial_connection):
 async def test_write_binary_data(mock_serial_connection):
     """Test writing binary data instead of JSON."""
 
-    async def send_binary_command(data_bytes, port="/dev/ttyUSB0"):
+    async def send_binary_command(data_bytes, port="/dev/ttyACM0"):
         reader, writer = await serial_asyncio.open_serial_connection(
             url=port, baudrate=115200
         )
